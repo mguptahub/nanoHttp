@@ -1,0 +1,691 @@
+:root {
+    /* Light theme variables */
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --primary-color: #4f46e5;
+    --secondary-color: #6b7280;
+    --accent-color: #818cf8;
+    --card-bg: #f9fafb;
+    --border-color: #e5e7eb;
+    --code-bg: #f3f4f6;
+    --terminal-bg: #1e293b;
+    --terminal-text: #e2e8f0;
+    --terminal-prompt: #10b981;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --highlight-color: #4f46e5;
+}
+
+[data-theme="dark"] {
+    /* Dark theme variables */
+    --bg-color: #111827;
+    --text-color: #f3f4f6;
+    --primary-color: #818cf8;
+    --secondary-color: #9ca3af;
+    --accent-color: #6366f1;
+    --card-bg: #1f2937;
+    --border-color: #374151;
+    --code-bg: #1f2937;
+    --terminal-bg: #0f172a;
+    --terminal-text: #e2e8f0;
+    --terminal-prompt: #10b981;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --highlight-color: #818cf8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.logo-text {
+    color: var(--text-color);
+}
+
+.highlight {
+    color: var(--highlight-color);
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+nav a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: var(--highlight-color);
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    transition: color 0.3s;
+}
+
+.theme-toggle:hover {
+    color: var(--highlight-color);
+}
+
+/* Hero Section */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 80px 0;
+    gap: 40px;
+}
+
+.hero-content {
+    flex: 1;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.tagline {
+    font-size: 1.25rem;
+    color: var(--secondary-color);
+    margin-bottom: 30px;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color);
+}
+
+.btn-secondary {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--border-color);
+}
+
+.install-command {
+    display: flex;
+    align-items: center;
+    background-color: var(--code-bg);
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.install-command code {
+    flex: 1;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.copy-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.3s;
+}
+
+.copy-btn:hover {
+    color: var(--highlight-color);
+}
+
+.hero-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.terminal {
+    width: 100%;
+    max-width: 500px;
+    background-color: var(--terminal-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px var(--shadow-color);
+}
+
+.terminal-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.terminal-buttons span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.terminal-buttons span:nth-child(1) {
+    background-color: #ef4444;
+}
+
+.terminal-buttons span:nth-child(2) {
+    background-color: #f59e0b;
+}
+
+.terminal-buttons span:nth-child(3) {
+    background-color: #10b981;
+}
+
+.terminal-title {
+    flex: 1;
+    text-align: center;
+    color: var(--terminal-text);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.terminal-content {
+    padding: 16px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--terminal-text);
+    line-height: 1.5;
+}
+
+.terminal-line {
+    margin-bottom: 4px;
+}
+
+.prompt {
+    color: var(--terminal-prompt);
+    margin-right: 8px;
+}
+
+/* Features Section */
+.features {
+    padding: 80px 0;
+}
+
+.features h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 50px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.feature-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px var(--shadow-color);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    color: var(--highlight-color);
+    margin-bottom: 20px;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 15px;
+}
+
+.feature-card p {
+    color: var(--secondary-color);
+}
+
+/* Installation Section */
+.installation {
+    padding: 80px 0;
+    background-color: var(--card-bg);
+}
+
+.installation h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 50px;
+}
+
+.install-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.install-option {
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.install-option h3 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+}
+
+.code-block {
+    background-color: var(--code-bg);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow-x: auto;
+}
+
+.code-block code {
+    font-family: monospace;
+    font-size: 0.9rem;
+    white-space: pre;
+    display: block;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Usage Section */
+.usage {
+    padding: 80px 0;
+}
+
+.usage h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 50px;
+}
+
+.usage-examples {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.usage-example {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.usage-example h3 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+}
+
+/* Footer */
+footer {
+    background-color: var(--card-bg);
+    padding: 40px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.footer-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--highlight-color);
+}
+
+.footer-copyright {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+        padding-bottom: 70px; /* Space for mobile nav */
+        overflow-x: hidden; /* Prevent horizontal scroll */
+    }
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px 0;
+        gap: 20px;
+    }
+
+    .hero h1 {
+        font-size: 1.75rem;
+        line-height: 1.3;
+        margin-bottom: 15px;
+    }
+
+    .tagline {
+        font-size: 1rem;
+        margin-bottom: 20px;
+        padding: 0 10px;
+    }
+
+    .cta-buttons {
+        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 20px;
+    }
+
+    .btn {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .install-command {
+        margin: 20px;
+        padding: 12px;
+        flex-direction: row;
+        align-items: center;
+        font-size: 0.8rem;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .install-command code {
+        padding-right: 10px;
+    }
+
+    .copy-btn {
+        position: static;
+        padding: 8px;
+        font-size: 1rem;
+    }
+
+    .hero-image {
+        margin: 20px -15px 0;
+        padding: 0 15px;
+    }
+
+    .terminal {
+        max-width: 100%;
+        font-size: 0.8rem;
+    }
+
+    .terminal-content {
+        padding: 12px;
+        font-size: 0.75rem;
+    }
+
+    .terminal-line {
+        margin-bottom: 8px;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    nav.desktop-nav {
+        display: none;
+    }
+
+    .mobile-nav {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--card-bg);
+        padding: 10px 5px;
+        border-top: 1px solid var(--border-color);
+        z-index: 100;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-nav ul {
+        display: flex;
+        justify-content: space-around;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .mobile-nav a {
+        color: var(--text-color);
+        text-decoration: none;
+        font-size: 0.7rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 5px;
+    }
+
+    .mobile-nav i {
+        font-size: 1.1rem;
+    }
+
+    .features, .installation, .usage {
+        padding: 40px 0;
+    }
+
+    .feature-grid, .install-options, .usage-examples {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0 10px;
+    }
+
+    .feature-card, .install-option, .usage-example {
+        padding: 15px;
+    }
+
+    .tabs {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        min-width: 100px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .code-block {
+        font-size: 0.75rem;
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    .code-block code {
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    footer {
+        padding: 20px 0;
+        margin-bottom: 60px;
+    }
+
+    .footer-links {
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .footer-copyright {
+        text-align: center;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+
+    .hero h1 {
+        font-size: 1.5rem;
+        padding: 0 5px;
+    }
+
+    .tagline {
+        font-size: 0.9rem;
+    }
+
+    .feature-icon {
+        font-size: 1.3rem;
+    }
+
+    .terminal-content {
+        font-size: 0.7rem;
+    }
+
+    .install-command {
+        margin: 15px 0;
+        font-size: 0.7rem;
+    }
+
+    .mobile-nav a {
+        font-size: 0.65rem;
+    }
+
+    .mobile-nav i {
+        font-size: 1rem;
+    }
+
+    h2 {
+        font-size: 1.8rem !important;
+        margin-bottom: 30px !important;
+    }
+
+    h3 {
+        font-size: 1.1rem !important;
+    }
+}
+
+/* Add fade-in animation classes */
+.fade-in-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+} 

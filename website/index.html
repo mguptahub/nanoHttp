@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="justHttp - A lightweight HTTP server with multiple instance support">
+    <meta name="theme-color" content="#4f46e5">
+    <title>justHttp - Lightweight HTTP Server</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-text">just</span><span class="highlight">Http</span>
+            </div>
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#installation">Installation</a></li>
+                    <li><a href="#usage">Usage</a></li>
+                    <li><a href="https://github.com/mguptahub/justHttp" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle" aria-label="Toggle theme">🌙</button>
+        </header>
+
+        <section class="hero">
+            <div class="hero-content">
+                <h1>A Lightweight HTTP Server with Multiple Instance Support</h1>
+                <p class="tagline">Run multiple HTTP servers with different configurations on a single machine</p>
+                <div class="cta-buttons">
+                    <a href="#installation" class="btn btn-primary">Get Started</a>
+                    <a href="https://github.com/mguptahub/justHttp" class="btn btn-secondary">View on GitHub</a>
+                </div>
+                <div class="install-command">
+                    <code>curl -fsSL https://justhttp.mguptahub.com/install.sh | bash</code>
+                    <button class="copy-btn" aria-label="Copy command">📋</button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="terminal-buttons">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div class="terminal-title">justHttp</div>
+                    </div>
+                    <div class="terminal-content">
+                        <div class="terminal-line"><span class="prompt">$</span> justHttp add --port 8080</div>
+                        <div class="terminal-line"><span class="prompt">$</span> justHttp add --port 8081 --config custom.yaml</div>
+                        <div class="terminal-line"><span class="prompt">$</span> justHttp list</div>
+                        <div class="terminal-line"><span class="prompt">$</span> justHttp start all</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <h2>Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Multiple Instances</h3>
+                    <p>Run multiple HTTP servers with different configurations on a single machine</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightweight</h3>
+                    <p>Minimal resource usage with high performance</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Configurable</h3>
+                    <p>Customize each instance with YAML configuration files</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Auto Update</h3>
+                    <p>Automatic updates from GitHub releases</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="installation" class="installation">
+            <h2>Installation</h2>
+            <div class="install-options">
+                <div class="install-option">
+                    <h3>Quick Install</h3>
+                    <div class="code-block">
+                        <code>curl -fsSL https://justhttp.mguptahub.com/install.sh | bash</code>
+                    </div>
+                </div>
+                <div class="install-option">
+                    <h3>Manual Install</h3>
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="linux">Linux</button>
+                        <button class="tab-btn" data-tab="macos">macOS</button>
+                    </div>
+                    <div id="linux" class="tab-content active">
+                        <div class="code-block">
+                            <code># Download the binary
+curl -LO https://github.com/mguptahub/justHttp/releases/latest/download/justHttp-linux-amd64
+
+# Make it executable
+chmod +x justHttp-linux-amd64
+
+# Move to /usr/local/bin
+sudo mv justHttp-linux-amd64 /usr/local/bin/justHttp</code>
+                        </div>
+                    </div>
+                    <div id="macos" class="tab-content">
+                        <div class="code-block">
+                            <code># Download the binary
+curl -LO https://github.com/mguptahub/justHttp/releases/latest/download/justHttp-darwin-amd64
+
+# Make it executable
+chmod +x justHttp-darwin-amd64
+
+# Move to /usr/local/bin
+sudo mv justHttp-darwin-amd64 /usr/local/bin/justHttp</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="usage" class="usage">
+            <h2>Usage</h2>
+            <div class="usage-examples">
+                <div class="usage-example">
+                    <h3>Add a Server Instance</h3>
+                    <div class="code-block">
+                        <code># Add a server on port 8080
+justHttp add --port 8080
+
+# Add a server with custom config
+justHttp add --port 8081 --config custom.yaml</code>
+                    </div>
+                </div>
+                <div class="usage-example">
+                    <h3>Manage Instances</h3>
+                    <div class="code-block">
+                        <code># List all instances
+justHttp list
+
+# Start all instances
+justHttp start all
+
+# Stop a specific instance
+justHttp stop 8080
+
+# Remove an instance
+justHttp remove 8080</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span class="logo-text">just</span><span class="highlight">Http</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/mguptahub/justHttp">GitHub</a>
+                    <a href="https://github.com/mguptahub/justHttp/blob/main/LICENSE">License</a>
+                </div>
+                <div class="footer-copyright">
+                    © 2025 justHttp. All rights reserved.
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <ul>
+            <li>
+                <a href="#features">
+                    <i class="fas fa-star"></i>
+                    <span>Features</span>
+                </a>
+            </li>
+            <li>
+                <a href="#installation">
+                    <i class="fas fa-download"></i>
+                    <span>Install</span>
+                </a>
+            </li>
+            <li>
+                <a href="#usage">
+                    <i class="fas fa-terminal"></i>
+                    <span>Usage</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/mguptahub/justHttp" target="_blank">
+                    <i class="fab fa-github"></i>
+                    <span>GitHub</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
