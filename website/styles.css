@@ -393,10 +393,20 @@ nav a:hover {
 .code-block-footer {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     font-size: 0.8rem;
     color: var(--secondary-color);
     margin-top: 8px;
     padding-right: 4px;
+    transition: color 0.3s ease;
+}
+
+.code-block:hover .code-block-footer {
+    color: var(--primary-color);
+}
+
+.code-block-footer i {
+    font-size: 1rem;
 }
 
 /* Tabs */
