@@ -12,6 +12,10 @@ nanoHttp is a lightweight HTTP server manager that allows you to run multiple HT
   - Directory listing (optional)
   - SSL certificates (optional)
 - Instance management (add, delete, start, stop)
+- Process tracking with PID management
+- Enhanced display options:
+  - Table format with status colors
+  - Simple format for detailed view
 - Self-update capability
 - Simple CLI interface with comprehensive help system
 
@@ -105,9 +109,16 @@ nanoHttp stop myserver
 # Delete an instance
 nanoHttp delete myserver
 
-# List all instances
+# List all instances (table format)
 nanoHttp list
+
+# List all instances with detailed view
+nanoHttp list --simple
 ```
+
+The list command provides two display formats:
+- Default table format: Compact view with color-coded status
+- Simple format (`--simple`): Detailed view showing full paths and information
 
 ### System commands
 
@@ -165,6 +176,16 @@ go build -o nanoHttp cmd/nanoHttp/main.go
 - `list`: List all instances
 - `update`: Check for and install updates
 - `version`: Show version information
+
+### List Command
+- Default format: Shows instances in a table with:
+  - Color-coded status (green for running, red for stopped)
+  - Truncated paths for better readability
+  - Process ID (PID) tracking
+- `--simple`: Shows detailed view with:
+  - Full paths without truncation
+  - Complete instance information
+  - Vertical layout for better readability
 
 ## License
 
