@@ -2,8 +2,8 @@
 const themeToggle = document.querySelector('.theme-toggle');
 const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
-// Check for saved theme preference or use system preference
-const currentTheme = localStorage.getItem('theme') || 
+// Get current theme from localStorage or system preference
+let currentTheme = localStorage.getItem('theme') || 
     (prefersDarkScheme.matches ? 'dark' : 'light');
 
 // Set initial theme
@@ -12,16 +12,25 @@ updateThemeIcon(currentTheme);
 
 // Theme toggle click handler
 themeToggle.addEventListener('click', () => {
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    localStorage.setItem('theme', currentTheme);
+    updateThemeIcon(currentTheme);
 });
 
 // Update theme icon based on current theme
 function updateThemeIcon(theme) {
     themeToggle.innerHTML = theme === 'light' ? '🌙' : '☀️';
 }
+
+// Listen for system theme changes
+prefersDarkScheme.addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) {
+        currentTheme = e.matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        updateThemeIcon(currentTheme);
+    }
+});
 
 // Copy functionality
 const toast = document.getElementById('toast');
