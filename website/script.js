@@ -23,19 +23,25 @@ function updateThemeIcon(theme) {
     themeToggle.innerHTML = theme === 'light' ? '🌙' : '☀️';
 }
 
-// Copy button functionality
-const copyBtn = document.querySelector('.copy-btn');
-if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
-        const code = document.querySelector('.install-command code').textContent;
+// Copy functionality
+const toast = document.getElementById('toast');
+let toastTimeout;
+
+document.querySelectorAll('.code-block').forEach(block => {
+    block.addEventListener('click', () => {
+        const code = block.querySelector('code').textContent;
         navigator.clipboard.writeText(code).then(() => {
-            copyBtn.textContent = '✓';
-            setTimeout(() => {
-                copyBtn.textContent = '📋';
+            // Show toast
+            clearTimeout(toastTimeout);
+            toast.classList.add('show');
+            
+            // Hide toast after 2 seconds
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
             }, 2000);
         });
     });
-}
+});
 
 // Tab functionality
 const tabButtons = document.querySelectorAll('.tab-btn');

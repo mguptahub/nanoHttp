@@ -23,7 +23,7 @@
                     <li><a href="#features">Features</a></li>
                     <li><a href="#installation">Installation</a></li>
                     <li><a href="#usage">Usage</a></li>
-                    <li><a href="https://github.com/mguptahub/justHttp" target="_blank">GitHub</a></li>
+                    <li><a href="https://github.com/mguptahub/justHttp" target="_blank" rel="noopener noreferrer">GitHub</a></li>
                 </ul>
             </nav>
             <button class="theme-toggle" aria-label="Toggle theme">🌙</button>
@@ -35,11 +35,7 @@
                 <p class="tagline">Run multiple HTTP servers with different configurations on a single machine</p>
                 <div class="cta-buttons">
                     <a href="#installation" class="btn btn-primary">Get Started</a>
-                    <a href="https://github.com/mguptahub/justHttp" class="btn btn-secondary">View on GitHub</a>
-                </div>
-                <div class="install-command">
-                    <code>curl -fsSL https://justhttp.mguptahub.com/install.sh | bash</code>
-                    <button class="copy-btn" aria-label="Copy command">📋</button>
+                    <a href="https://github.com/mguptahub/justHttp" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">View on GitHub</a>
                 </div>
             </div>
             <div class="hero-image">
@@ -53,10 +49,10 @@
                         <div class="terminal-title">justHttp</div>
                     </div>
                     <div class="terminal-content">
-                        <div class="terminal-line"><span class="prompt">$</span> justHttp add --port 8080</div>
-                        <div class="terminal-line"><span class="prompt">$</span> justHttp add --port 8081 --config custom.yaml</div>
+                        <div class="terminal-line"><span class="prompt">$</span> justHttp add -name myserver -web-folder /path/to/files</div>
+                        <div class="terminal-line"><span class="prompt">$</span> justHttp start myserver</div>
                         <div class="terminal-line"><span class="prompt">$</span> justHttp list</div>
-                        <div class="terminal-line"><span class="prompt">$</span> justHttp start all</div>
+                        <div class="terminal-line"><span class="prompt">$</span> justHttp stop myserver</div>
                     </div>
                 </div>
             </div>
@@ -80,11 +76,6 @@
                     <h3>Configurable</h3>
                     <p>Customize each instance with YAML configuration files</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔄</div>
-                    <h3>Auto Update</h3>
-                    <p>Automatic updates from GitHub releases</p>
-                </div>
             </div>
         </section>
 
@@ -95,6 +86,7 @@
                     <h3>Quick Install</h3>
                     <div class="code-block">
                         <code>curl -fsSL https://justhttp.mguptahub.com/install.sh | bash</code>
+                        <div class="code-block-footer">Click to copy</div>
                     </div>
                 </div>
                 <div class="install-option">
@@ -113,6 +105,7 @@ chmod +x justHttp-linux-amd64
 
 # Move to /usr/local/bin
 sudo mv justHttp-linux-amd64 /usr/local/bin/justHttp</code>
+                            <div class="code-block-footer">Click to copy</div>
                         </div>
                     </div>
                     <div id="macos" class="tab-content">
@@ -125,6 +118,7 @@ chmod +x justHttp-darwin-amd64
 
 # Move to /usr/local/bin
 sudo mv justHttp-darwin-amd64 /usr/local/bin/justHttp</code>
+                            <div class="code-block-footer">Click to copy</div>
                         </div>
                     </div>
                 </div>
@@ -137,27 +131,33 @@ sudo mv justHttp-darwin-amd64 /usr/local/bin/justHttp</code>
                 <div class="usage-example">
                     <h3>Add a Server Instance</h3>
                     <div class="code-block">
-                        <code># Add a server on port 8080
-justHttp add --port 8080
+                        <code># Basic usage with required flags
+justHttp add -name myserver -web-folder /path/to/files
 
-# Add a server with custom config
-justHttp add --port 8081 --config custom.yaml</code>
+# Full usage with all options
+justHttp add -name myserver \
+  -port 8080 \
+  -web-folder /path/to/files \
+  -allow-dir-listing \
+  -ssl-cert-folder /path/to/certs</code>
+                        <div class="code-block-footer">Click to copy</div>
                     </div>
                 </div>
                 <div class="usage-example">
                     <h3>Manage Instances</h3>
                     <div class="code-block">
-                        <code># List all instances
-justHttp list
+                        <code># Start an instance
+justHttp start myserver
 
-# Start all instances
-justHttp start all
+# Stop an instance
+justHttp stop myserver
 
-# Stop a specific instance
-justHttp stop 8080
+# Delete an instance
+justHttp delete myserver
 
-# Remove an instance
-justHttp remove 8080</code>
+# List all instances
+justHttp list</code>
+                        <div class="code-block-footer">Click to copy</div>
                     </div>
                 </div>
             </div>
@@ -168,16 +168,15 @@ justHttp remove 8080</code>
                 <div class="footer-logo">
                     <span class="logo-text">just</span><span class="highlight">Http</span>
                 </div>
-                <div class="footer-links">
-                    <a href="https://github.com/mguptahub/justHttp">GitHub</a>
-                    <a href="https://github.com/mguptahub/justHttp/blob/main/LICENSE">License</a>
-                </div>
                 <div class="footer-copyright">
-                    © 2025 justHttp. All rights reserved.
+                    © 2024 justHttp. All rights reserved.
                 </div>
             </div>
         </footer>
     </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">Copied to clipboard!</div>
 
     <!-- Mobile Navigation -->
     <nav class="mobile-nav">
