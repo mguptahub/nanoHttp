@@ -54,6 +54,7 @@
                         <div class="terminal-line"><span class="prompt">$</span> nanoHttp start myserver</div>
                         <div class="terminal-line"><span class="prompt">$</span> nanoHttp list</div>
                         <div class="terminal-line"><span class="prompt">$</span> nanoHttp stop myserver</div>
+                        <div class="terminal-line"><span class="prompt">$</span> nanoHttp delete myserver</div>
                     </div>
                 </div>
             </div>
@@ -128,8 +129,9 @@ sudo mv nanoHttp-darwin-amd64 /usr/local/bin/nanoHttp</code>
 
         <section id="usage" class="usage">
             <h2>Usage</h2>
-            <div class="usage-examples">
-                <div class="usage-example">
+            
+            <div class="usage-grid">
+                <div class="usage-card">
                     <h3>Add a Server Instance</h3>
                     <div class="code-block">
                         <code># Basic usage with required flags
@@ -143,7 +145,8 @@ nanoHttp add -name myserver \
                         <div class="code-block-footer"><i class="fas fa-copy"></i></div>
                     </div>
                 </div>
-                <div class="usage-example">
+                
+                <div class="usage-card">
                     <h3>Manage Instances</h3>
                     <div class="code-block">
                         <code># Start an instance

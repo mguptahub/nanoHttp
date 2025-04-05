@@ -139,13 +139,23 @@ const terminalLines = document.querySelectorAll('.terminal-line');
 let currentLine = 0;
 
 function typeLine(line) {
-    const text = line.textContent;
-    line.textContent = '';
+    const promptSpan = line.querySelector('.prompt');
+    const promptText = promptSpan.textContent;
+    const originalText = line.textContent;
+    const textWithoutPrompt = originalText.replace(promptText, '');
+    
+    // Save the prompt element
+    const promptElement = promptSpan.cloneNode(true);
+    
+    // Clear line content but keep structure
+    line.innerHTML = '';
+    line.appendChild(promptElement);
+    
     let charIndex = 0;
 
     function typeChar() {
-        if (charIndex < text.length) {
-            line.textContent += text.charAt(charIndex);
+        if (charIndex < textWithoutPrompt.length) {
+            line.appendChild(document.createTextNode(textWithoutPrompt.charAt(charIndex)));
             charIndex++;
             setTimeout(typeChar, 50);
         } else {
