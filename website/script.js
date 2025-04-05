@@ -32,6 +32,27 @@ prefersDarkScheme.addEventListener('change', (e) => {
     }
 });
 
+// Scroll to Top functionality
+const scrollToTopBtn = document.getElementById('scrollToTop');
+const scrollThreshold = 300; // Show button after scrolling 300px
+
+// Show/hide scroll to top button based on scroll position
+window.addEventListener('scroll', () => {
+    if (window.scrollY > scrollThreshold) {
+        scrollToTopBtn.classList.add('show');
+    } else {
+        scrollToTopBtn.classList.remove('show');
+    }
+});
+
+// Smooth scroll to top when button is clicked
+scrollToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
 // Copy functionality
 const toast = document.getElementById('toast');
 let toastTimeout;
