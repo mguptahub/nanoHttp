@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/mguptahub/justHttp/internal/config"
-	"github.com/mguptahub/justHttp/internal/server"
+	"github.com/mguptahub/nanoHttp/internal/config"
+	"github.com/mguptahub/nanoHttp/internal/server"
 )
 
 // Manager handles multiple server instances

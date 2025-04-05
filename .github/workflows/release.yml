@@ -21,41 +21,41 @@ jobs:
           GOOS: linux
           GOARCH: amd64
         run: |
-          go build -o justHttp-linux-amd64 cmd/justhttp/main.go
-          chmod +x justHttp-linux-amd64
+          go build -o nanoHttp-linux-amd64 cmd/nanohttp/main.go
+          chmod +x nanoHttp-linux-amd64
 
       - name: Build ARM64 binary
         env:
           GOOS: linux
           GOARCH: arm64
         run: |
-          go build -o justHttp-linux-arm64 cmd/justhttp/main.go
-          chmod +x justHttp-linux-arm64
+          go build -o nanoHttp-linux-arm64 cmd/nanohttp/main.go
+          chmod +x nanoHttp-linux-arm64
 
       - name: Build macOS AMD64 binary
         env:
           GOOS: darwin
           GOARCH: amd64
         run: |
-          go build -o justHttp-darwin-amd64 cmd/justhttp/main.go
-          chmod +x justHttp-darwin-amd64
+          go build -o nanoHttp-darwin-amd64 cmd/nanohttp/main.go
+          chmod +x nanoHttp-darwin-amd64
 
       - name: Build macOS ARM64 binary
         env:
           GOOS: darwin
           GOARCH: arm64
         run: |
-          go build -o justHttp-darwin-arm64 cmd/justhttp/main.go
-          chmod +x justHttp-darwin-arm64
+          go build -o nanoHttp-darwin-arm64 cmd/nanohttp/main.go
+          chmod +x nanoHttp-darwin-arm64
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            justHttp-linux-amd64
-            justHttp-linux-arm64
-            justHttp-darwin-amd64
-            justHttp-darwin-arm64
+            nanoHttp-linux-amd64
+            nanoHttp-linux-arm64
+            nanoHttp-darwin-amd64
+            nanoHttp-darwin-arm64
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

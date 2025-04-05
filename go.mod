@@ -1,4 +1,4 @@
-module github.com/mguptahub/justHttp
+module github.com/mguptahub/nanoHttp
 
 go 1.21
 

@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sync"
+	"syscall"
 
-	"github.com/mguptahub/justHttp/internal/config"
+	"github.com/mguptahub/nanoHttp/internal/config"
 )
 
 // Instance represents a server instance configuration
@@ -21,6 +22,7 @@ type Instance struct {
 	AllowDirListing bool   `json:"allow_dir_listing"`
 	SSLCertFolder   string `json:"ssl_cert_folder,omitempty"`
 	IsRunning       bool   `json:"is_running"`
+	PID             int    `json:"pid,omitempty"`
 }
 
 // Manager manages multiple server instances
@@ -32,10 +34,25 @@ type Manager struct {
 
 // NewManager creates a new server manager
 func NewManager(configDir string) *Manager {
-	return &Manager{
+	manager := &Manager{
 		configDir: configDir,
 		servers:   make(map[string]*Server),
 	}
+
+	// Load configuration from disk
+	config, err := config.LoadConfig()
+	if err != nil {
+		fmt.Printf("Error loading config: %v\n", err)
+		return manager
+	}
+
+	// Create server instances from config
+	for name, instance := range config.Instances {
+		server := NewServer(instance)
+		manager.servers[name] = server
+	}
+
+	return manager
 }
 
 // AddInstance adds a new server instance
@@ -72,12 +89,42 @@ func (m *Manager) StartInstance(name string) error {
 		return fmt.Errorf("instance %s not found", name)
 	}
 
-	if err := server.Start(); err != nil {
-		return err
+	// Get the executable path
+	executable, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("error getting executable path: %v", err)
 	}
 
-	// Update configuration
-	return m.saveConfig()
+	// Start the server in a new process
+	cmd := exec.Command(executable, "serve", name)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("error starting server process: %v", err)
+	}
+
+	// Write PID file
+	if err := os.WriteFile(server.getPIDFilePath(), []byte(fmt.Sprintf("%d", cmd.Process.Pid)), 0644); err != nil {
+		return fmt.Errorf("error writing PID file: %v", err)
+	}
+
+	server.pid = cmd.Process.Pid
+	server.isRunning = true
+
+	// Load and update configuration
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		return fmt.Errorf("error loading config: %v", err)
+	}
+
+	instance := cfg.Instances[name]
+	instance.IsRunning = true
+	instance.PID = cmd.Process.Pid
+	cfg.Instances[name] = instance
+
+	// Save configuration
+	return config.SaveConfig(cfg)
 }
 
 // StopInstance stops a server instance
@@ -90,12 +137,53 @@ func (m *Manager) StopInstance(name string) error {
 		return fmt.Errorf("instance %s not found", name)
 	}
 
-	if err := server.Stop(); err != nil {
-		return err
+	// Check if running using PID file
+	if !server.checkIfRunning() {
+		return fmt.Errorf("server %s is not running", name)
 	}
 
-	// Update configuration
-	return m.saveConfig()
+	// Read PID from file
+	pidFile := server.getPIDFilePath()
+	data, err := os.ReadFile(pidFile)
+	if err != nil {
+		return fmt.Errorf("error reading PID file: %v", err)
+	}
+
+	var pid int
+	if _, err := fmt.Sscanf(string(data), "%d", &pid); err != nil {
+		return fmt.Errorf("error parsing PID: %v", err)
+	}
+
+	// Find and kill the process
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return fmt.Errorf("error finding process: %v", err)
+	}
+
+	if err := process.Signal(syscall.SIGTERM); err != nil {
+		return fmt.Errorf("error stopping process: %v", err)
+	}
+
+	// Remove PID file
+	if err := server.removePIDFile(); err != nil {
+		return fmt.Errorf("error removing PID file: %v", err)
+	}
+
+	server.isRunning = false
+
+	// Load and update configuration
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		return fmt.Errorf("error loading config: %v", err)
+	}
+
+	instance := cfg.Instances[name]
+	instance.IsRunning = false
+	instance.PID = 0
+	cfg.Instances[name] = instance
+
+	// Save configuration
+	return config.SaveConfig(cfg)
 }
 
 // DeleteInstance deletes a server instance
@@ -125,17 +213,24 @@ func (m *Manager) ListInstances() []*Instance {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	instances := make([]*Instance, 0, len(m.servers))
-	for name, server := range m.servers {
-		instance := &Instance{
+	// Load configuration from disk
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		fmt.Printf("Error loading config: %v\n", err)
+		return nil
+	}
+
+	instances := make([]*Instance, 0, len(cfg.Instances))
+	for name, instance := range cfg.Instances {
+		instances = append(instances, &Instance{
 			Name:            name,
-			Port:            server.config.Port,
-			WebFolder:       server.config.WebFolder,
-			AllowDirListing: server.config.AllowDirListing,
-			SSLCertFolder:   server.config.SSLCertFolder,
-			IsRunning:       server.IsRunning(),
-		}
-		instances = append(instances, instance)
+			Port:            instance.Port,
+			WebFolder:       instance.WebFolder,
+			AllowDirListing: instance.AllowDirListing,
+			SSLCertFolder:   instance.SSLCertFolder,
+			IsRunning:       instance.IsRunning,
+			PID:             instance.PID,
+		})
 	}
 	return instances
 }
@@ -179,6 +274,7 @@ type Server struct {
 	mu         sync.Mutex
 	isRunning  bool
 	cancelFunc context.CancelFunc
+	pid        int
 }
 
 // NewServer creates a new server instance
@@ -193,31 +289,34 @@ func (s *Server) Start() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.isRunning {
+	// Check if already running using PID file
+	if s.checkIfRunning() {
 		return fmt.Errorf("server %s is already running", s.config.Name)
 	}
 
-	// Create a new context for the server
-	ctx, cancel := context.WithCancel(context.Background())
-	s.cancelFunc = cancel
-
-	// Create the server
-	s.server = &http.Server{
-		Addr:    fmt.Sprintf(":%d", s.config.Port),
-		Handler: s.createHandler(),
-		BaseContext: func(l net.Listener) context.Context {
-			return ctx
-		},
+	// Get the executable path
+	executable, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("error getting executable path: %v", err)
 	}
 
-	// Start the server in a goroutine
-	go func() {
-		if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Printf("Error starting server %s: %v\n", s.config.Name, err)
-		}
-	}()
+	// Start the server in a new process
+	cmd := exec.Command(executable, "serve", s.config.Name)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("error starting server process: %v", err)
+	}
+
+	// Write PID file
+	if err := os.WriteFile(s.getPIDFilePath(), []byte(fmt.Sprintf("%d", cmd.Process.Pid)), 0644); err != nil {
+		return fmt.Errorf("error writing PID file: %v", err)
+	}
+
+	s.pid = cmd.Process.Pid
 	s.isRunning = true
+
 	return nil
 }
 
@@ -226,16 +325,36 @@ func (s *Server) Stop() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if !s.isRunning {
+	// Check if running using PID file
+	if !s.checkIfRunning() {
 		return fmt.Errorf("server %s is not running", s.config.Name)
 	}
 
-	if s.cancelFunc != nil {
-		s.cancelFunc()
+	// Read PID from file
+	pidFile := s.getPIDFilePath()
+	data, err := os.ReadFile(pidFile)
+	if err != nil {
+		return fmt.Errorf("error reading PID file: %v", err)
 	}
 
-	if err := s.server.Shutdown(context.Background()); err != nil {
-		return fmt.Errorf("error shutting down server %s: %v", s.config.Name, err)
+	var pid int
+	if _, err := fmt.Sscanf(string(data), "%d", &pid); err != nil {
+		return fmt.Errorf("error parsing PID: %v", err)
+	}
+
+	// Find and kill the process
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return fmt.Errorf("error finding process: %v", err)
+	}
+
+	if err := process.Signal(syscall.SIGTERM); err != nil {
+		return fmt.Errorf("error stopping process: %v", err)
+	}
+
+	// Remove PID file
+	if err := s.removePIDFile(); err != nil {
+		return fmt.Errorf("error removing PID file: %v", err)
 	}
 
 	s.isRunning = false
@@ -246,7 +365,7 @@ func (s *Server) Stop() error {
 func (s *Server) IsRunning() bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return s.isRunning
+	return s.checkIfRunning()
 }
 
 // createHandler creates the HTTP handler for the server
@@ -271,4 +390,64 @@ func (s *Server) createHandler() http.Handler {
 	}
 
 	return mux
+}
+
+func (s *Server) getPIDFilePath() string {
+	return filepath.Join(os.TempDir(), fmt.Sprintf("nanohttp_%s.pid", s.config.Name))
+}
+
+func (s *Server) writePIDFile() error {
+	pidFile := s.getPIDFilePath()
+	return os.WriteFile(pidFile, []byte(fmt.Sprintf("%d", os.Getpid())), 0644)
+}
+
+func (s *Server) removePIDFile() error {
+	pidFile := s.getPIDFilePath()
+	return os.Remove(pidFile)
+}
+
+func (s *Server) checkIfRunning() bool {
+	pidFile := s.getPIDFilePath()
+	data, err := os.ReadFile(pidFile)
+	if err != nil {
+		return false
+	}
+
+	var pid int
+	if _, err := fmt.Sscanf(string(data), "%d", &pid); err != nil {
+		return false
+	}
+
+	// Check if process exists
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return false
+	}
+
+	// On Unix-like systems, FindProcess always succeeds, so we need to check if the process is actually running
+	err = process.Signal(syscall.Signal(0))
+	return err == nil
+}
+
+// GetServer returns a server instance by name
+func (m *Manager) GetServer(name string) (*Server, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	server, exists := m.servers[name]
+	if !exists {
+		return nil, fmt.Errorf("instance %s not found", name)
+	}
+
+	return server, nil
+}
+
+// GetConfig returns the server configuration
+func (s *Server) GetConfig() config.InstanceConfig {
+	return s.config
+}
+
+// CreateHandler creates and returns the HTTP handler for the server
+func (s *Server) CreateHandler() http.Handler {
+	return s.createHandler()
 }

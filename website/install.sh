@@ -56,18 +56,18 @@ detect_os_arch() {
 install_binary() {
     local os_arch=$1
     local version="latest"
-    local binary_name="justHttp-${os_arch}"
+    local binary_name="nanoHttp-${os_arch}"
     local install_dir="/usr/local/bin"
-    local binary_path="${install_dir}/justHttp"
+    local binary_path="${install_dir}/nanoHttp"
     
-    info "Downloading justHttp for ${os_arch}..."
+    info "Downloading nanoHttp for ${os_arch}..."
     
     # Create a temporary directory
     local tmp_dir=$(mktemp -d)
     trap 'rm -rf "$tmp_dir"' EXIT
     
     # Download the binary
-    if ! curl -L -o "${tmp_dir}/${binary_name}" "https://github.com/mguptahub/justHttp/releases/${version}/download/${binary_name}"; then
+    if ! curl -L -o "${tmp_dir}/${binary_name}" "https://github.com/mguptahub/nanoHttp/releases/${version}/download/${binary_name}"; then
         error_exit "Failed to download binary"
     fi
     
@@ -86,13 +86,13 @@ install_binary() {
         fi
     fi
     
-    success "justHttp has been installed to ${binary_path}"
-    success "You can now run 'justHttp --help' to get started"
+    success "nanoHttp has been installed to ${binary_path}"
+    success "You can now run 'nanoHttp --help' to get started"
 }
 
 # Main installation process
 main() {
-    info "Installing justHttp..."
+    info "Installing nanoHttp..."
     
     # Detect OS and architecture
     local os_arch=$(detect_os_arch)

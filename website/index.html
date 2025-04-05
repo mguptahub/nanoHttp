@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="justHttp - A lightweight HTTP server with multiple instance support">
+    <meta name="description" content="nanoHttp - A lightweight HTTP server with multiple instance support">
     <meta name="theme-color" content="#4f46e5">
-    <title>justHttp - Lightweight HTTP Server</title>
+    <title>nanoHttp - Lightweight HTTP Server</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,14 +16,14 @@
     <div class="container">
         <header>
             <div class="logo">
-                <span class="logo-text">just</span><span class="highlight">Http</span>
+                <span class="logo-text">nano</span><span class="highlight">Http</span>
             </div>
             <nav class="desktop-nav">
                 <ul>
                     <li><a href="#features">Features</a></li>
                     <li><a href="#installation">Installation</a></li>
                     <li><a href="#usage">Usage</a></li>
-                    <li><a href="https://github.com/mguptahub/justHttp" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                    <li><a href="https://github.com/mguptahub/nanoHttp" target="_blank" rel="noopener noreferrer">GitHub</a></li>
                 </ul>
             </nav>
             <button class="theme-toggle" aria-label="Toggle theme">🌙</button>
@@ -35,7 +35,7 @@
                 <p class="tagline">Run multiple HTTP servers with different configurations on a single machine</p>
                 <div class="cta-buttons">
                     <a href="#installation" class="btn btn-primary">Get Started</a>
-                    <a href="https://github.com/mguptahub/justHttp" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">View on GitHub</a>
+                    <a href="https://github.com/mguptahub/nanoHttp" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">View on GitHub</a>
                 </div>
             </div>
             <div class="hero-image">
@@ -46,13 +46,13 @@
                             <span></span>
                             <span></span>
                         </div>
-                        <div class="terminal-title">justHttp</div>
+                        <div class="terminal-title">nanoHttp</div>
                     </div>
                     <div class="terminal-content">
-                        <div class="terminal-line"><span class="prompt">$</span> justHttp add -name myserver -web-folder /path/to/files</div>
-                        <div class="terminal-line"><span class="prompt">$</span> justHttp start myserver</div>
-                        <div class="terminal-line"><span class="prompt">$</span> justHttp list</div>
-                        <div class="terminal-line"><span class="prompt">$</span> justHttp stop myserver</div>
+                        <div class="terminal-line"><span class="prompt">$</span> nanoHttp add -name myserver -web-folder /path/to/files</div>
+                        <div class="terminal-line"><span class="prompt">$</span> nanoHttp start myserver</div>
+                        <div class="terminal-line"><span class="prompt">$</span> nanoHttp list</div>
+                        <div class="terminal-line"><span class="prompt">$</span> nanoHttp stop myserver</div>
                     </div>
                 </div>
             </div>
@@ -85,7 +85,7 @@
                 <div class="install-option">
                     <h3>Quick Install</h3>
                     <div class="code-block">
-                        <code>curl -fsSL https://justhttp.mguptahub.com/install.sh | bash</code>
+                        <code>curl -fsSL https://nanohttp.mguptahub.com/install.sh | bash</code>
                         <div class="code-block-footer">Click to copy</div>
                     </div>
                 </div>
@@ -98,26 +98,26 @@
                     <div id="linux" class="tab-content active">
                         <div class="code-block">
                             <code># Download the binary
-curl -LO https://github.com/mguptahub/justHttp/releases/latest/download/justHttp-linux-amd64
+curl -LO https://github.com/mguptahub/nanoHttp/releases/latest/download/nanoHttp-linux-amd64
 
 # Make it executable
-chmod +x justHttp-linux-amd64
+chmod +x nanoHttp-linux-amd64
 
 # Move to /usr/local/bin
-sudo mv justHttp-linux-amd64 /usr/local/bin/justHttp</code>
+sudo mv nanoHttp-linux-amd64 /usr/local/bin/nanoHttp</code>
                             <div class="code-block-footer">Click to copy</div>
                         </div>
                     </div>
                     <div id="macos" class="tab-content">
                         <div class="code-block">
                             <code># Download the binary
-curl -LO https://github.com/mguptahub/justHttp/releases/latest/download/justHttp-darwin-amd64
+curl -LO https://github.com/mguptahub/nanoHttp/releases/latest/download/nanoHttp-darwin-amd64
 
 # Make it executable
-chmod +x justHttp-darwin-amd64
+chmod +x nanoHttp-darwin-amd64
 
 # Move to /usr/local/bin
-sudo mv justHttp-darwin-amd64 /usr/local/bin/justHttp</code>
+sudo mv nanoHttp-darwin-amd64 /usr/local/bin/nanoHttp</code>
                             <div class="code-block-footer">Click to copy</div>
                         </div>
                     </div>
@@ -132,10 +132,10 @@ sudo mv justHttp-darwin-amd64 /usr/local/bin/justHttp</code>
                     <h3>Add a Server Instance</h3>
                     <div class="code-block">
                         <code># Basic usage with required flags
-justHttp add -name myserver -web-folder /path/to/files
+nanoHttp add -name myserver -web-folder /path/to/files
 
 # Full usage with all options
-justHttp add -name myserver \
+nanoHttp add -name myserver \
   -port 8080 \
   -web-folder /path/to/files \
   -allow-dir-listing \
@@ -147,16 +147,16 @@ justHttp add -name myserver \
                     <h3>Manage Instances</h3>
                     <div class="code-block">
                         <code># Start an instance
-justHttp start myserver
+nanoHttp start myserver
 
 # Stop an instance
-justHttp stop myserver
+nanoHttp stop myserver
 
 # Delete an instance
-justHttp delete myserver
+nanoHttp delete myserver
 
 # List all instances
-justHttp list</code>
+nanoHttp list</code>
                         <div class="code-block-footer">Click to copy</div>
                     </div>
                 </div>
@@ -166,10 +166,10 @@ justHttp list</code>
         <footer>
             <div class="footer-content">
                 <div class="footer-logo">
-                    <span class="logo-text">just</span><span class="highlight">Http</span>
+                    <span class="logo-text">nano</span><span class="highlight">Http</span>
                 </div>
                 <div class="footer-copyright">
-                    © 2024 justHttp. All rights reserved.
+                    © 2024 nanoHttp. All rights reserved.
                 </div>
             </div>
         </footer>
@@ -200,7 +200,7 @@ justHttp list</code>
                 </a>
             </li>
             <li>
-                <a href="https://github.com/mguptahub/justHttp" target="_blank">
+                <a href="https://github.com/mguptahub/nanoHttp" target="_blank">
                     <i class="fab fa-github"></i>
                     <span>GitHub</span>
                 </a>

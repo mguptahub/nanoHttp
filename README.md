@@ -1,11 +1,11 @@
-# justHttp
+# nanoHttp
 
-justHttp is a lightweight HTTP server manager that allows you to run multiple HTTP server instances on different ports. It's designed to be simple to use while providing essential features for serving static files.
+nanoHttp is a lightweight HTTP server manager that allows you to run multiple HTTP server instances on different ports. It's designed to be simple to use while providing essential features for serving static files.
 
 ## Features
 
 - Run multiple HTTP server instances on different ports
-- Configuration management at `~/.justHttp/config`
+- Configuration management at `~/.nanoHttp/config`
 - Customizable instance settings:
   - Port number (default: 8080)
   - Web root folder
@@ -20,7 +20,7 @@ justHttp is a lightweight HTTP server manager that allows you to run multiple HT
 ### Quick Install (Recommended)
 
 ```bash
-curl -fsSL https://justhttp.mguptahub.com/install.sh | bash
+curl -fsSL https://nanohttp.mguptahub.com/install.sh | bash
 ```
 
 This will automatically detect your OS and architecture, download the appropriate binary, and install it to `/usr/local/bin`.
@@ -33,60 +33,60 @@ If you prefer to install manually, you can download the binary directly:
 
 ```bash
 # For AMD64
-curl -L -o justHttp https://github.com/mguptahub/justHttp/releases/latest/download/justHttp-linux-amd64
+curl -L -o nanoHttp https://github.com/mguptahub/nanoHttp/releases/latest/download/nanoHttp-linux-amd64
 
 # For ARM64
-curl -L -o justHttp https://github.com/mguptahub/justHttp/releases/latest/download/justHttp-linux-arm64
+curl -L -o nanoHttp https://github.com/mguptahub/nanoHttp/releases/latest/download/nanoHttp-linux-arm64
 
 # Make it executable
-chmod +x justHttp
+chmod +x nanoHttp
 
 # Move to a directory in your PATH
-sudo mv justHttp /usr/local/bin/
+sudo mv nanoHttp /usr/local/bin/
 ```
 
 #### macOS
 
 ```bash
 # For Intel (AMD64)
-curl -L -o justHttp https://github.com/mguptahub/justHttp/releases/latest/download/justHttp-darwin-amd64
+curl -L -o nanoHttp https://github.com/mguptahub/nanoHttp/releases/latest/download/nanoHttp-darwin-amd64
 
 # For Apple Silicon (ARM64)
-curl -L -o justHttp https://github.com/mguptahub/justHttp/releases/latest/download/justHttp-darwin-arm64
+curl -L -o nanoHttp https://github.com/mguptahub/nanoHttp/releases/latest/download/nanoHttp-darwin-arm64
 
 # Make it executable
-chmod +x justHttp
+chmod +x nanoHttp
 
 # Move to a directory in your PATH
-sudo mv justHttp /usr/local/bin/
+sudo mv nanoHttp /usr/local/bin/
 ```
 
 ## Usage
 
-justHttp provides a simple command-line interface. Use `--help` with any command to see detailed usage information:
+nanoHttp provides a simple command-line interface. Use `--help` with any command to see detailed usage information:
 
 ```bash
 # Show general help
-justHttp --help
+nanoHttp --help
 
 # Show help for specific commands
-justHttp add --help
-justHttp start --help
-justHttp stop --help
-justHttp delete --help
-justHttp list --help
-justHttp update --help
-justHttp version --help
+nanoHttp add --help
+nanoHttp start --help
+nanoHttp stop --help
+nanoHttp delete --help
+nanoHttp list --help
+nanoHttp update --help
+nanoHttp version --help
 ```
 
 ### Adding a new instance
 
 ```bash
 # Basic usage with required flags
-justHttp add -name myserver -web-folder /path/to/files
+nanoHttp add -name myserver -web-folder /path/to/files
 
 # Full usage with all options
-justHttp add -name myserver \
+nanoHttp add -name myserver \
   -port 8080 \
   -web-folder /path/to/files \
   -allow-dir-listing \
@@ -97,31 +97,31 @@ justHttp add -name myserver \
 
 ```bash
 # Start an instance
-justHttp start myserver
+nanoHttp start myserver
 
 # Stop an instance
-justHttp stop myserver
+nanoHttp stop myserver
 
 # Delete an instance
-justHttp delete myserver
+nanoHttp delete myserver
 
 # List all instances
-justHttp list
+nanoHttp list
 ```
 
 ### System commands
 
 ```bash
 # Check for updates
-justHttp update
+nanoHttp update
 
 # Show version
-justHttp version
+nanoHttp version
 ```
 
 ## Configuration
 
-The configuration file is stored at `~/.justHttp/config` in JSON format. Here's an example configuration:
+The configuration file is stored at `~/.nanoHttp/config` in JSON format. Here's an example configuration:
 
 ```json
 {
@@ -142,11 +142,11 @@ The configuration file is stored at `~/.justHttp/config` in JSON format. Here's 
 
 ```bash
 # Clone the repository
-git clone https://github.com/mguptahub/justHttp.git
-cd justHttp
+git clone https://github.com/mguptahub/nanoHttp.git
+cd nanoHttp
 
 # Build the binary
-go build -o justHttp cmd/justhttp/main.go
+go build -o nanoHttp cmd/nanoHttp/main.go
 ```
 
 ## Command-line Options

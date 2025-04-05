@@ -14,6 +14,7 @@ type InstanceConfig struct {
 	AllowDirListing bool   `json:"allow_dir_listing"`
 	SSLCertFolder   string `json:"ssl_cert_folder,omitempty"`
 	IsRunning       bool   `json:"is_running"`
+	PID             int    `json:"pid,omitempty"`
 }
 
 // Config represents the main configuration file structure
@@ -34,7 +35,7 @@ func GetConfigDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	configDir := filepath.Join(homeDir, ".justHttp")
+	configDir := filepath.Join(homeDir, ".nanoHttp")
 	if err := os.MkdirAll(configDir, 0755); err != nil {
 		return "", err
 	}
@@ -47,7 +48,7 @@ func GetConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(configDir, "config"), nil
+	return filepath.Join(configDir, "config.json"), nil
 }
 
 // LoadConfig loads the configuration from the config file

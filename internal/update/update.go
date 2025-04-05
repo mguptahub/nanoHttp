@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	githubAPI = "https://api.github.com/repos/mguptahub/justHttp/releases/latest"
+	githubAPI = "https://api.github.com/repos/mguptahub/nanoHttp/releases/latest"
 )
 
 // Release represents a GitHub release
@@ -55,7 +55,7 @@ func DownloadUpdate(release *Release) error {
 	// Find the appropriate asset for the current OS and architecture
 	var assetURL string
 	for _, asset := range release.Assets {
-		if asset.Name == fmt.Sprintf("justHttp-%s-%s", runtime.GOOS, runtime.GOARCH) {
+		if asset.Name == fmt.Sprintf("nanoHttp-%s-%s", runtime.GOOS, runtime.GOARCH) {
 			assetURL = asset.DownloadURL
 			break
 		}
@@ -73,7 +73,7 @@ func DownloadUpdate(release *Release) error {
 	defer resp.Body.Close()
 
 	// Create a temporary file
-	tmpFile, err := os.CreateTemp("", "justHttp-update-*")
+	tmpFile, err := os.CreateTemp("", "nanoHttp-update-*")
 	if err != nil {
 		return fmt.Errorf("failed to create temporary file: %v", err)
 	}
