@@ -672,6 +672,10 @@ footer {
         padding: 0;
     }
 
+    .container header {
+        padding: 1rem 1rem;
+    }
+
     .hero-content {
         padding: 0 10px;
     }

@@ -51,8 +51,6 @@ func main() {
 		handleList(manager)
 	case "update":
 		handleUpdate()
-	case "serve":
-		handleServe(manager)
 	case "version":
 		fmt.Printf("%s version %s\n", appName, appVersion)
 	default:
@@ -71,31 +69,62 @@ func printHelp() {
 	fmt.Println("  delete  Delete a server instance")
 	fmt.Println("  list    List all server instances")
 	fmt.Println("  update  Check for and install updates")
-	fmt.Println("  serve   Serve a server instance")
 	fmt.Println("  version Show version information")
 	fmt.Println("\nUse --help with any command for detailed usage information")
 }
 
 func handleAdd(manager *server.Manager) {
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
-	name := addCmd.String("name", "", "Instance name (required)")
-	port := addCmd.Int("port", 8080, "Port number")
-	webFolder := addCmd.String("web-folder", "", "Web root folder (required)")
-	allowDirListing := addCmd.Bool("allow-dir-listing", false, "Allow directory listing")
+	addCmd.Usage = func() {
+		fmt.Println("Usage: nanoHttp add [options]")
+		fmt.Println("\nOptions:")
+		fmt.Printf("  -d | -allow-dir-listing     Allow directory listing\n")
+		fmt.Printf("  -n | -name                  Instance name (required)\n")
+		fmt.Printf("  -p | -port                  Port number (default 8080)\n")
+		fmt.Printf("  -w | -web-folder            Web root folder (required)\n")
+	}
+
+	var (
+		name            string
+		port            int
+		webFolder       string
+		allowDirListing bool
+	)
+
+	// Define flags with aliases
+	addCmd.StringVar(&name, "name", "", "")
+	addCmd.StringVar(&name, "n", "", "")
+	addCmd.IntVar(&port, "port", 8080, "")
+	addCmd.IntVar(&port, "p", 8080, "")
+	addCmd.StringVar(&webFolder, "web-folder", "", "")
+	addCmd.StringVar(&webFolder, "w", "", "")
+	addCmd.BoolVar(&allowDirListing, "allow-dir-listing", false, "")
+	addCmd.BoolVar(&allowDirListing, "d", false, "")
+
+	// Handle --help explicitly
+	if len(os.Args) > 2 && (os.Args[2] == "--help" || os.Args[2] == "-h") {
+		addCmd.Usage()
+		os.Exit(0)
+	}
+
+	if len(os.Args) < 3 {
+		addCmd.Usage()
+		os.Exit(1)
+	}
 
 	addCmd.Parse(os.Args[2:])
 
-	if *name == "" || *webFolder == "" {
+	if name == "" || webFolder == "" {
 		fmt.Println("Error: name and web-folder are required")
-		addCmd.PrintDefaults()
+		addCmd.Usage()
 		os.Exit(1)
 	}
 
 	instance := &server.Instance{
-		Name:            *name,
-		Port:            *port,
-		WebFolder:       *webFolder,
-		AllowDirListing: *allowDirListing,
+		Name:            name,
+		Port:            port,
+		WebFolder:       webFolder,
+		AllowDirListing: allowDirListing,
 	}
 
 	if err := manager.AddInstance(instance); err != nil {
@@ -103,29 +132,114 @@ func handleAdd(manager *server.Manager) {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Instance '%s' added successfully\n", *name)
+	fmt.Printf("Instance '%s' added successfully\n", name)
 }
 
 func handleStart(manager *server.Manager) {
+	startCmd := flag.NewFlagSet("start", flag.ExitOnError)
+	startCmd.Usage = func() {
+		fmt.Println("Usage: nanoHttp start <instance-name> [options]")
+		fmt.Println("\nOptions:")
+		fmt.Printf("  -f | -foreground            Run server in foreground (current process)\n")
+	}
+
+	var foreground bool
+	startCmd.BoolVar(&foreground, "foreground", false, "")
+	startCmd.BoolVar(&foreground, "f", false, "")
+
 	if len(os.Args) < 3 {
 		fmt.Println("Error: instance name is required")
-		fmt.Println("Usage: nanoHttp start <instance-name>")
+		startCmd.Usage()
 		os.Exit(1)
+	}
+
+	// Check if --help is requested
+	if os.Args[2] == "--help" || os.Args[2] == "-h" {
+		startCmd.Usage()
+		os.Exit(0)
 	}
 
 	name := os.Args[2]
-	if err := manager.StartInstance(name); err != nil {
-		fmt.Printf("Error starting instance: %v\n", err)
+	if err := startCmd.Parse(os.Args[3:]); err != nil {
+		fmt.Printf("Error parsing flags: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Instance '%s' started successfully\n", name)
+	if foreground {
+		runServerInForeground(manager, name)
+	} else {
+		if err := manager.StartInstance(name); err != nil {
+			fmt.Printf("Error starting instance: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Instance '%s' started successfully\n", name)
+	}
+}
+
+func runServerInForeground(manager *server.Manager, name string) {
+	server, err := manager.GetServer(name)
+	if err != nil {
+		fmt.Printf("Error getting server instance: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Create a new context for the server
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Set up signal handling
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+
+	// Create the HTTP server
+	httpServer := &http.Server{
+		Addr:    fmt.Sprintf(":%d", server.GetConfig().Port),
+		Handler: server.CreateHandler(),
+		BaseContext: func(l net.Listener) context.Context {
+			return ctx
+		},
+	}
+
+	// Start the server
+	go func() {
+		fmt.Printf("Starting server '%s' in foreground mode on port %d\n", name, server.GetConfig().Port)
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			fmt.Printf("Error starting server %s: %v\n", name, err)
+			os.Exit(1)
+		}
+	}()
+
+	// Wait for interrupt signal
+	<-sigChan
+	fmt.Printf("\nShutting down server '%s'...\n", name)
+
+	// Shutdown the server
+	if err := httpServer.Shutdown(context.Background()); err != nil {
+		fmt.Printf("Error shutting down server: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("Server stopped successfully")
 }
 
 func handleStop(manager *server.Manager) {
+	stopCmd := flag.NewFlagSet("stop", flag.ExitOnError)
+	stopCmd.Usage = func() {
+		fmt.Println("Usage: nanoHttp stop <instance-name>")
+		fmt.Println("\nDescription:")
+		fmt.Println("  Stop a running server instance. If the instance is not running,")
+		fmt.Println("  an error will be returned. This command will gracefully shutdown")
+		fmt.Println("  the server, allowing in-flight requests to complete.")
+	}
+
+	// Handle --help explicitly
+	if len(os.Args) > 2 && (os.Args[2] == "--help" || os.Args[2] == "-h") {
+		stopCmd.Usage()
+		os.Exit(0)
+	}
+
 	if len(os.Args) < 3 {
 		fmt.Println("Error: instance name is required")
-		fmt.Println("Usage: nanoHttp stop <instance-name>")
+		stopCmd.Usage()
 		os.Exit(1)
 	}
 
@@ -139,9 +253,24 @@ func handleStop(manager *server.Manager) {
 }
 
 func handleDelete(manager *server.Manager) {
+	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
+	deleteCmd.Usage = func() {
+		fmt.Println("Usage: nanoHttp delete <instance-name>")
+		fmt.Println("\nDescription:")
+		fmt.Println("  Delete a server instance configuration. If the instance is running,")
+		fmt.Println("  it will be stopped first. This command will remove all configuration")
+		fmt.Println("  data for the specified instance. This action cannot be undone.")
+	}
+
+	// Handle --help explicitly
+	if len(os.Args) > 2 && (os.Args[2] == "--help" || os.Args[2] == "-h") {
+		deleteCmd.Usage()
+		os.Exit(0)
+	}
+
 	if len(os.Args) < 3 {
 		fmt.Println("Error: instance name is required")
-		fmt.Println("Usage: nanoHttp delete <instance-name>")
+		deleteCmd.Usage()
 		os.Exit(1)
 	}
 
@@ -155,9 +284,23 @@ func handleDelete(manager *server.Manager) {
 }
 
 func handleList(manager *server.Manager) {
-	// Add flag parsing for list command
 	listCmd := flag.NewFlagSet("list", flag.ExitOnError)
-	simpleFormat := listCmd.Bool("simple", false, "Use simple list format instead of table")
+	listCmd.Usage = func() {
+		fmt.Println("Usage: nanoHttp list [options]")
+		fmt.Println("\nOptions:")
+		fmt.Printf("  -s | -simple                Use simple list format instead of table\n")
+	}
+
+	var simpleFormat bool
+	listCmd.BoolVar(&simpleFormat, "simple", false, "")
+	listCmd.BoolVar(&simpleFormat, "s", false, "")
+
+	// Handle --help explicitly
+	if len(os.Args) > 2 && (os.Args[2] == "--help" || os.Args[2] == "-h") {
+		listCmd.Usage()
+		os.Exit(0)
+	}
+
 	listCmd.Parse(os.Args[2:])
 
 	instances := manager.ListInstances()
@@ -166,7 +309,7 @@ func handleList(manager *server.Manager) {
 		return
 	}
 
-	if *simpleFormat {
+	if simpleFormat {
 		// Simple format display
 		fmt.Println("Server Instances:")
 		for _, instance := range instances {
@@ -283,53 +426,4 @@ func truncateString(s string, maxLen int) string {
 func handleUpdate() {
 	// TODO: Implement update functionality
 	fmt.Println("Update functionality not implemented yet")
-}
-
-func handleServe(manager *server.Manager) {
-	if len(os.Args) < 3 {
-		fmt.Println("Error: instance name is required")
-		fmt.Println("Usage: nanoHttp serve <instance-name>")
-		os.Exit(1)
-	}
-
-	name := os.Args[2]
-	server, err := manager.GetServer(name)
-	if err != nil {
-		fmt.Printf("Error getting server instance: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Create a new context for the server
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Set up signal handling
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-
-	// Create the HTTP server
-	httpServer := &http.Server{
-		Addr:    fmt.Sprintf(":%d", server.GetConfig().Port),
-		Handler: server.CreateHandler(),
-		BaseContext: func(l net.Listener) context.Context {
-			return ctx
-		},
-	}
-
-	// Start the server
-	go func() {
-		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Printf("Error starting server %s: %v\n", name, err)
-			os.Exit(1)
-		}
-	}()
-
-	// Wait for interrupt signal
-	<-sigChan
-
-	// Shutdown the server
-	if err := httpServer.Shutdown(context.Background()); err != nil {
-		fmt.Printf("Error shutting down server: %v\n", err)
-		os.Exit(1)
-	}
 }
