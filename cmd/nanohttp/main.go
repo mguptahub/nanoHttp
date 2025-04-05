@@ -82,7 +82,6 @@ func handleAdd(manager *server.Manager) {
 	port := addCmd.Int("port", 8080, "Port number")
 	webFolder := addCmd.String("web-folder", "", "Web root folder (required)")
 	allowDirListing := addCmd.Bool("allow-dir-listing", false, "Allow directory listing")
-	sslCertFolder := addCmd.String("ssl-cert-folder", "", "SSL certificates folder")
 
 	addCmd.Parse(os.Args[2:])
 
@@ -97,7 +96,6 @@ func handleAdd(manager *server.Manager) {
 		Port:            *port,
 		WebFolder:       *webFolder,
 		AllowDirListing: *allowDirListing,
-		SSLCertFolder:   *sslCertFolder,
 	}
 
 	if err := manager.AddInstance(instance); err != nil {
@@ -184,11 +182,6 @@ func handleList(manager *server.Manager) {
 				dirListing = "yes"
 			}
 
-			sslCert := "none"
-			if instance.SSLCertFolder != "" {
-				sslCert = instance.SSLCertFolder
-			}
-
 			pid := "-"
 			if instance.IsRunning && instance.PID > 0 {
 				pid = fmt.Sprintf("%d", instance.PID)
@@ -198,7 +191,6 @@ func handleList(manager *server.Manager) {
 			fmt.Printf("  Port: %d\n", instance.Port)
 			fmt.Printf("  Web Folder: %s\n", instance.WebFolder)
 			fmt.Printf("  Dir Listing: %s\n", dirListing)
-			fmt.Printf("  SSL Cert: %s\n", sslCert)
 			fmt.Printf("  Status: %s%s\033[0m\n", statusColor, status)
 			fmt.Printf("  PID: %s\n\n", pid)
 		}
@@ -210,37 +202,33 @@ func handleList(manager *server.Manager) {
 		portWidth   = 6
 		folderWidth = 12
 		dirWidth    = 12
-		sslWidth    = 12
 		statusWidth = 8
 		pidWidth    = 8
 	)
 
 	// Print table header
 	fmt.Println("Server Instances:")
-	fmt.Printf("┌%s┬%s┬%s┬%s┬%s┬%s┬%s┐\n",
+	fmt.Printf("┌%s┬%s┬%s┬%s┬%s┬%s┐\n",
 		strings.Repeat("─", nameWidth+2),
 		strings.Repeat("─", portWidth+2),
 		strings.Repeat("─", folderWidth+2),
 		strings.Repeat("─", dirWidth+2),
-		strings.Repeat("─", sslWidth+2),
 		strings.Repeat("─", statusWidth+2),
 		strings.Repeat("─", pidWidth+2))
 
-	fmt.Printf("│ %-*s │ %-*s │ %-*s │ %-*s │ %-*s │ %-*s │ %-*s │\n",
+	fmt.Printf("│ %-*s │ %-*s │ %-*s │ %-*s │ %-*s │ %-*s │\n",
 		nameWidth, "Name",
 		portWidth, "Port",
 		folderWidth, "Web Folder",
 		dirWidth, "Dir Listing",
-		sslWidth, "SSL Cert",
 		statusWidth, "Status",
 		pidWidth, "PID")
 
-	fmt.Printf("├%s┼%s┼%s┼%s┼%s┼%s┼%s┤\n",
+	fmt.Printf("├%s┼%s┼%s┼%s┼%s┼%s┤\n",
 		strings.Repeat("─", nameWidth+2),
 		strings.Repeat("─", portWidth+2),
 		strings.Repeat("─", folderWidth+2),
 		strings.Repeat("─", dirWidth+2),
-		strings.Repeat("─", sslWidth+2),
 		strings.Repeat("─", statusWidth+2),
 		strings.Repeat("─", pidWidth+2))
 
@@ -258,11 +246,6 @@ func handleList(manager *server.Manager) {
 			dirListing = "yes"
 		}
 
-		sslCert := "none"
-		if instance.SSLCertFolder != "" {
-			sslCert = truncateString(instance.SSLCertFolder, sslWidth)
-		}
-
 		webFolder := truncateString(instance.WebFolder, folderWidth)
 		name := truncateString(instance.Name, nameWidth)
 
@@ -271,22 +254,20 @@ func handleList(manager *server.Manager) {
 			pid = fmt.Sprintf("%d", instance.PID)
 		}
 
-		fmt.Printf("│ %-*s │ %*d │ %-*s │ %-*s │ %-*s │ %s%-*s\033[0m │ %-*s │\n",
+		fmt.Printf("│ %-*s │ %*d │ %-*s │ %-*s │ %s%-*s\033[0m │ %-*s │\n",
 			nameWidth, name,
 			portWidth, instance.Port,
 			folderWidth, webFolder,
 			dirWidth, dirListing,
-			sslWidth, sslCert,
 			statusColor, statusWidth, status,
 			pidWidth, pid)
 	}
 
-	fmt.Printf("└%s┴%s┴%s┴%s┴%s┴%s┴%s┘\n",
+	fmt.Printf("└%s┴%s┴%s┴%s┴%s┴%s┘\n",
 		strings.Repeat("─", nameWidth+2),
 		strings.Repeat("─", portWidth+2),
 		strings.Repeat("─", folderWidth+2),
 		strings.Repeat("─", dirWidth+2),
-		strings.Repeat("─", sslWidth+2),
 		strings.Repeat("─", statusWidth+2),
 		strings.Repeat("─", pidWidth+2))
 }

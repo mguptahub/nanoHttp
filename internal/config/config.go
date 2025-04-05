@@ -12,7 +12,6 @@ type InstanceConfig struct {
 	Port            int    `json:"port"`
 	WebFolder       string `json:"web_folder"`
 	AllowDirListing bool   `json:"allow_dir_listing"`
-	SSLCertFolder   string `json:"ssl_cert_folder,omitempty"`
 	IsRunning       bool   `json:"is_running"`
 	PID             int    `json:"pid,omitempty"`
 }

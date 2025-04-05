@@ -20,7 +20,6 @@ type Instance struct {
 	Port            int    `json:"port"`
 	WebFolder       string `json:"web_folder"`
 	AllowDirListing bool   `json:"allow_dir_listing"`
-	SSLCertFolder   string `json:"ssl_cert_folder,omitempty"`
 	IsRunning       bool   `json:"is_running"`
 	PID             int    `json:"pid,omitempty"`
 }
@@ -69,7 +68,6 @@ func (m *Manager) AddInstance(instance *Instance) error {
 		Port:            instance.Port,
 		WebFolder:       instance.WebFolder,
 		AllowDirListing: instance.AllowDirListing,
-		SSLCertFolder:   instance.SSLCertFolder,
 	}
 
 	server := NewServer(cfg)
@@ -227,7 +225,6 @@ func (m *Manager) ListInstances() []*Instance {
 			Port:            instance.Port,
 			WebFolder:       instance.WebFolder,
 			AllowDirListing: instance.AllowDirListing,
-			SSLCertFolder:   instance.SSLCertFolder,
 			IsRunning:       instance.IsRunning,
 			PID:             instance.PID,
 		})
@@ -250,7 +247,6 @@ func (m *Manager) saveConfig() error {
 			Port:            server.config.Port,
 			WebFolder:       server.config.WebFolder,
 			AllowDirListing: server.config.AllowDirListing,
-			SSLCertFolder:   server.config.SSLCertFolder,
 			IsRunning:       server.IsRunning(),
 		}
 	}

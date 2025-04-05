@@ -10,7 +10,6 @@ nanoHttp is a lightweight HTTP server manager that allows you to run multiple HT
   - Port number (default: 8080)
   - Web root folder
   - Directory listing (optional)
-  - SSL certificates (optional)
 - Instance management (add, delete, start, stop)
 - Process tracking with PID management
 - Enhanced display options:
@@ -93,8 +92,7 @@ nanoHttp add -name myserver -web-folder /path/to/files
 nanoHttp add -name myserver \
   -port 8080 \
   -web-folder /path/to/files \
-  -allow-dir-listing \
-  -ssl-cert-folder /path/to/certs
+  -allow-dir-listing
 ```
 
 ### Managing instances
@@ -142,7 +140,6 @@ The configuration file is stored at `~/.nanoHttp/config` in JSON format. Here's 
       "port": 8080,
       "web_folder": "/path/to/files",
       "allow_dir_listing": true,
-      "ssl_cert_folder": "",
       "is_running": false
     }
   }
@@ -167,25 +164,14 @@ go build -o nanoHttp cmd/nanoHttp/main.go
 - `-port` (default: 8080): Port number
 - `-web-folder` (required): Web root folder
 - `-allow-dir-listing` (default: false): Allow directory listing
-- `-ssl-cert-folder`: SSL certificates folder
 
 ### Other Commands
 - `start <instance-name>`: Start an instance
 - `stop <instance-name>`: Stop an instance
 - `delete <instance-name>`: Delete an instance
 - `list`: List all instances
-- `update`: Check for and install updates
+- `update`: Check for updates
 - `version`: Show version information
-
-### List Command
-- Default format: Shows instances in a table with:
-  - Color-coded status (green for running, red for stopped)
-  - Truncated paths for better readability
-  - Process ID (PID) tracking
-- `--simple`: Shows detailed view with:
-  - Full paths without truncation
-  - Complete instance information
-  - Vertical layout for better readability
 
 ## License
 
