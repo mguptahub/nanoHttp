@@ -1,5 +1,6 @@
 // Theme handling
 const themeToggle = document.querySelector('.theme-toggle');
+const mobileThemeToggle = document.querySelector('.mobile-theme-toggle');
 const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
 // Get current theme from localStorage or system preference
@@ -8,19 +9,24 @@ let currentTheme = localStorage.getItem('theme') ||
 
 // Set initial theme
 document.documentElement.setAttribute('data-theme', currentTheme);
-updateThemeIcon(currentTheme);
+updateThemeIcons(currentTheme);
 
-// Theme toggle click handler
-themeToggle.addEventListener('click', () => {
+// Theme toggle click handlers
+themeToggle.addEventListener('click', toggleTheme);
+mobileThemeToggle.addEventListener('click', toggleTheme);
+
+function toggleTheme() {
     currentTheme = currentTheme === 'light' ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', currentTheme);
     localStorage.setItem('theme', currentTheme);
-    updateThemeIcon(currentTheme);
-});
+    updateThemeIcons(currentTheme);
+}
 
-// Update theme icon based on current theme
-function updateThemeIcon(theme) {
-    themeToggle.innerHTML = theme === 'light' ? '🌙' : '☀️';
+// Update theme icons based on current theme
+function updateThemeIcons(theme) {
+    const iconContent = theme === 'light' ? '🌙' : '☀️';
+    themeToggle.innerHTML = iconContent;
+    mobileThemeToggle.innerHTML = iconContent;
 }
 
 // Listen for system theme changes
@@ -28,7 +34,7 @@ prefersDarkScheme.addEventListener('change', (e) => {
     if (!localStorage.getItem('theme')) {
         currentTheme = e.matches ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', currentTheme);
-        updateThemeIcon(currentTheme);
+        updateThemeIcons(currentTheme);
     }
 });
 
