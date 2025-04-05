@@ -60,21 +60,23 @@ scrollToTopBtn.addEventListener('click', () => {
 });
 
 // Copy functionality
-const toast = document.getElementById('toast');
-let toastTimeout;
-
 document.querySelectorAll('.code-block').forEach(block => {
+    const copyIcon = block.querySelector('.code-block-footer i');
+    
     block.addEventListener('click', () => {
         const code = block.querySelector('code').textContent;
         navigator.clipboard.writeText(code).then(() => {
-            // Show toast
-            clearTimeout(toastTimeout);
-            toast.classList.add('show');
+            // Change icon to check mark
+            copyIcon.classList.remove('fa-copy');
+            copyIcon.classList.add('fa-check');
+            copyIcon.style.color = 'var(--terminal-prompt)';
             
-            // Hide toast after 2 seconds
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
+            // Reset icon after 3 seconds
+            setTimeout(() => {
+                copyIcon.classList.remove('fa-check');
+                copyIcon.classList.add('fa-copy');
+                copyIcon.style.color = '';
+            }, 3000);
         });
     });
 });
