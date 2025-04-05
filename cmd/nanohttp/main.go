@@ -81,7 +81,7 @@ func handleAdd(manager *server.Manager) {
 		fmt.Printf("  -d | -allow-dir-listing     Allow directory listing\n")
 		fmt.Printf("  -n | -name                  Instance name (required)\n")
 		fmt.Printf("  -p | -port                  Port number (default 8080)\n")
-		fmt.Printf("  -w | -web-folder            Web root folder (required)\n")
+		fmt.Printf("  -w | -web-folder            Web root folder (required, relative paths will be converted to absolute)\n")
 	}
 
 	var (

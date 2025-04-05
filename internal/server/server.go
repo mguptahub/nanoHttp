@@ -63,10 +63,24 @@ func (m *Manager) AddInstance(instance *Instance) error {
 		return fmt.Errorf("instance %s already exists", instance.Name)
 	}
 
+	// Convert relative web folder path to absolute path
+	absWebFolder, err := filepath.Abs(instance.WebFolder)
+	if err != nil {
+		return fmt.Errorf("error converting to absolute path: %v", err)
+	}
+
+	// Verify the folder exists
+	if info, err := os.Stat(absWebFolder); err != nil || !info.IsDir() {
+		if err != nil {
+			return fmt.Errorf("web folder does not exist: %v", err)
+		}
+		return fmt.Errorf("specified path is not a directory: %s", absWebFolder)
+	}
+
 	cfg := config.InstanceConfig{
 		Name:            instance.Name,
 		Port:            instance.Port,
-		WebFolder:       instance.WebFolder,
+		WebFolder:       absWebFolder, // Use absolute path
 		AllowDirListing: instance.AllowDirListing,
 	}
 
@@ -93,8 +107,8 @@ func (m *Manager) StartInstance(name string) error {
 		return fmt.Errorf("error getting executable path: %v", err)
 	}
 
-	// Start the server in a new process
-	cmd := exec.Command(executable, "serve", name)
+	// Start the server in a new process using the 'start -foreground' command
+	cmd := exec.Command(executable, "start", name, "-foreground")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -137,6 +151,44 @@ func (m *Manager) StopInstance(name string) error {
 
 	// Check if running using PID file
 	if !server.checkIfRunning() {
+		// Check if the config still thinks it's running
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return fmt.Errorf("error loading config: %v", err)
+		}
+
+		instance, exists := cfg.Instances[name]
+		if !exists {
+			return fmt.Errorf("instance %s not found in config", name)
+		}
+
+		if instance.IsRunning && instance.PID > 0 {
+			// Config says it's running but PID file doesn't exist
+			// Try to find and kill the process using the PID from config
+			process, err := os.FindProcess(instance.PID)
+			if err == nil {
+				// Try to send a signal to check if process exists
+				if err := process.Signal(syscall.Signal(0)); err == nil {
+					// Process exists, kill it
+					if err := process.Signal(syscall.SIGTERM); err != nil {
+						fmt.Printf("Warning: Failed to terminate process %d: %v\n", instance.PID, err)
+					}
+				}
+			}
+
+			// Update config to mark as not running
+			instance.IsRunning = false
+			instance.PID = 0
+			cfg.Instances[name] = instance
+			if err := config.SaveConfig(cfg); err != nil {
+				return fmt.Errorf("error saving config: %v", err)
+			}
+
+			server.isRunning = false
+			fmt.Printf("Updated status for instance '%s' (process not running)\n", name)
+			return nil
+		}
+
 		return fmt.Errorf("server %s is not running", name)
 	}
 
@@ -296,8 +348,8 @@ func (s *Server) Start() error {
 		return fmt.Errorf("error getting executable path: %v", err)
 	}
 
-	// Start the server in a new process
-	cmd := exec.Command(executable, "serve", s.config.Name)
+	// Start the server in a new process using the 'start -foreground' command
+	cmd := exec.Command(executable, "start", s.config.Name, "-foreground")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -368,19 +420,86 @@ func (s *Server) IsRunning() bool {
 func (s *Server) createHandler() http.Handler {
 	mux := http.NewServeMux()
 
-	// Serve static files
-	fileServer := http.FileServer(http.Dir(s.config.WebFolder))
+	// Ensure we have an absolute path
+	webFolder := s.config.WebFolder
+	if !filepath.IsAbs(webFolder) {
+		absPath, err := filepath.Abs(webFolder)
+		if err == nil {
+			webFolder = absPath
+		} else {
+			fmt.Printf("Warning: Could not convert to absolute path: %v\n", err)
+		}
+	}
+
+	// Create a file server with custom file serving middleware
+	fileServerHandler := http.FileServer(http.Dir(webFolder))
+	fileServerWithContentType := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set Content-Type based on file extension
+		ext := filepath.Ext(r.URL.Path)
+		switch ext {
+		case ".css":
+			w.Header().Set("Content-Type", "text/css")
+		case ".js":
+			w.Header().Set("Content-Type", "application/javascript")
+		case ".html", ".htm":
+			w.Header().Set("Content-Type", "text/html")
+		case ".json":
+			w.Header().Set("Content-Type", "application/json")
+		case ".png":
+			w.Header().Set("Content-Type", "image/png")
+		case ".jpg", ".jpeg":
+			w.Header().Set("Content-Type", "image/jpeg")
+		case ".gif":
+			w.Header().Set("Content-Type", "image/gif")
+		case ".svg":
+			w.Header().Set("Content-Type", "image/svg+xml")
+		case ".txt":
+			w.Header().Set("Content-Type", "text/plain")
+		case ".ico":
+			w.Header().Set("Content-Type", "image/x-icon")
+		case ".webp":
+			w.Header().Set("Content-Type", "image/webp")
+		case ".md":
+			w.Header().Set("Content-Type", "text/markdown")
+		case ".pdf":
+			w.Header().Set("Content-Type", "application/pdf")
+		case ".doc", ".docx":
+			w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+		case ".xls", ".xlsx":
+			w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+		case ".ppt", ".pptx":
+			w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation")
+		case ".zip":
+			w.Header().Set("Content-Type", "application/zip")
+		case ".tar":
+			w.Header().Set("Content-Type", "application/x-tar")
+		case ".gz":
+			w.Header().Set("Content-Type", "application/gzip")
+
+		}
+		fileServerHandler.ServeHTTP(w, r)
+	})
+
 	if s.config.AllowDirListing {
-		mux.Handle("/", fileServer)
+		mux.Handle("/", fileServerWithContentType)
 	} else {
 		mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Handle index file specially
 			if r.URL.Path == "/" {
-				indexPath := filepath.Join(s.config.WebFolder, "index.html")
+				indexPath := filepath.Join(webFolder, "index.html")
 				if _, err := os.Stat(indexPath); err == nil {
+					w.Header().Set("Content-Type", "text/html")
 					http.ServeFile(w, r, indexPath)
 					return
 				}
 			}
+
+			// For other files, use our content type handler
+			if filepath.Ext(r.URL.Path) != "" {
+				fileServerWithContentType.ServeHTTP(w, r)
+				return
+			}
+
 			http.NotFound(w, r)
 		}))
 	}
